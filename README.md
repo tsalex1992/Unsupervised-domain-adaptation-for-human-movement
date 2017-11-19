@@ -5,11 +5,18 @@ You can use the [editor on GitHub](https://github.com/tsalex1992/Unsupervised-do
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 -------------------------------------------------------------------------------
 Useful Links:
+
 Project: http://tomzahavy.wixsite.com/rlprojects/copy-of-forward-models
+
 face transfer: https://github.com/tjwei/GANotebooks
+
 CyCADA: https://arxiv.org/pdf/1711.03213.pdf
+
 clothes transfer: https://github.com/fxia22/PixelDTGAN
+
 Fashion GAN: https://www.cs.toronto.edu/~urtasun/publications/zhu_etal_iccv17.pdf
+
+
 -------------------------------------------------------------------------------
 ### Markdown
 
