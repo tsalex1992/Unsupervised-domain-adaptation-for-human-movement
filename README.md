@@ -16,6 +16,8 @@ clothes transfer: https://github.com/fxia22/PixelDTGAN
 
 Fashion GAN: https://www.cs.toronto.edu/~urtasun/publications/zhu_etal_iccv17.pdf
 
+youtube faces DB:http://www.cslab.openu.ac.il/personal/ftp_sorry.html
+user: wolftau psw: wtal997
 
 -------------------------------------------------------------------------------
 ### Markdown
