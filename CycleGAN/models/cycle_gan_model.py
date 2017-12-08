@@ -9,8 +9,9 @@ from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 import sys
-
-
+sys.path.append('../pytorch_Realtime_Multi-Person_Pose/')
+import web_demo #TODO:
+import web_demo.handle_one as netH
 class CycleGANModel(BaseModel):
     def name(self):
         return 'CycleGANModel'
@@ -169,8 +170,8 @@ class CycleGANModel(BaseModel):
         rec_B = self.netG_A(fake_A)
         loss_cycle_B = self.criterionCycle(rec_B, self.real_B) * lambda_B
         # Skeleton Idt loss TODO:
-        #SkellA= self.getskeleton(self.realA)
-        #SkellB= self.netH(fake_B)
+        #SkellA= netH(self.realA)
+        #SkellB= netH(fake_B)
         #loss_skeleton=self.criterionSkel(SkellA,SkellB)
         # combined loss
         loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B # +loss_skeleton
