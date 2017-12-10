@@ -8,10 +8,10 @@ import util.util as util
 from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
-import sys
-sys.path.append('../pytorch_Realtime_Multi-Person_Pose/')
-import web_demo #TODO:
-import web_demo.handle_one as netH
+import sys                                                 #used to add the directory
+sys.path.append('../pytorch_Realtime_Multi-Person_Pose/') #of demo to the path
+import web_demo #TODO:  #importing demo
+import web_demo.handle_one as netH #importing the function handle one to use as netH
 
 class CycleGANModel(BaseModel):
     def name(self):
@@ -57,7 +57,7 @@ class CycleGANModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(use_lsgan=not opt.no_lsgan, tensor=self.Tensor)
             self.criterionCycle = torch.nn.L1Loss()
-            self.criterionSkel= torch.nn.L1Loss() #TODO:
+            self.criterionSkel= torch.nn.L1Loss() #TODO: #defined the skeleton loss to be L1
             self.criterionIdt = torch.nn.L1Loss()
             # initialize optimizers
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_A.parameters(), self.netG_B.parameters()),
@@ -171,11 +171,11 @@ class CycleGANModel(BaseModel):
         rec_B = self.netG_A(fake_A)
         loss_cycle_B = self.criterionCycle(rec_B, self.real_B) * lambda_B
         # Skeleton Idt loss TODO:
-        #SkellA= netH(self.realA)
-        #SkellB= netH(fake_B)
-        #loss_skeleton=self.criterionSkel(SkellA,SkellB)
+        #SkellA= netH(self.realA) #using netH to get the heatmap for original A
+        #SkellB= netH(fake_B)  #using netH to get the heatmap from the generated fakeB
+        #loss_skeleton=self.criterionSkel(SkellA,SkellB) #using L1 loss on the two skeletons
         # combined loss
-        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B # +loss_skeleton
+        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B # +loss_skeleton #adding our loss the overall loss
         loss_G.backward()
 
         self.fake_B = fake_B.data

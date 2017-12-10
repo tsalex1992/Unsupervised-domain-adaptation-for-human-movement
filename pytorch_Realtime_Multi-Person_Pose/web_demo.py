@@ -173,7 +173,10 @@ def handle_one(oriImg):
 
     paf = nn.UpsamplingBilinear2d((oriImg.shape[0], oriImg.shape[1])).cuda()(output1)       
 
-    return heatmap, paf
+    return heatmap, paf  #for now we have assumed that we will cut the function here and we will rely on this output
+                        # we didn't figure out what the type of the heatmap and we would like to "compile" the overall
+                        #algorithm with this assumption to be able to follow the run with the debugger and check the
+                        # datatypes and the overall flow.
 #     print heatmap.size()
 #     print paf.size()
 #     print type(heatmap)
