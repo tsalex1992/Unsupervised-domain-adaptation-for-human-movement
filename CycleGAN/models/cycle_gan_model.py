@@ -12,6 +12,7 @@ import sys
 sys.path.append('../pytorch_Realtime_Multi-Person_Pose/')
 import web_demo #TODO:
 import web_demo.handle_one as netH
+
 class CycleGANModel(BaseModel):
     def name(self):
         return 'CycleGANModel'
