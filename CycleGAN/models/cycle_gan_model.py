@@ -9,9 +9,12 @@ from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 import sys                                                 #used to add the directory
-sys.path.append('../pytorch_Realtime_Multi-Person_Pose/') #of demo to the path
-import web_demo #TODO:  #importing demo
-import web_demo.handle_one as netH #importing the function handle one to use as netH
+#sys.path.append('../../pytorch_Realtime_Multi-Person_Pose/') #of demo to the path
+#import web_demo #TODO:  #importing demo
+#import web_demo.handle_one as netH #importing the function handle one to use as netH
+#import pytorch_Realtime.web_demo
+from .pytorch_Realtime.web_demo import handle_one as netH
+
 
 class CycleGANModel(BaseModel):
     def name(self):
@@ -171,11 +174,11 @@ class CycleGANModel(BaseModel):
         rec_B = self.netG_A(fake_A)
         loss_cycle_B = self.criterionCycle(rec_B, self.real_B) * lambda_B
         # Skeleton Idt loss TODO:
-        #SkellA= netH(self.realA) #using netH to get the heatmap for original A
-        #SkellB= netH(fake_B)  #using netH to get the heatmap from the generated fakeB
-        #loss_skeleton=self.criterionSkel(SkellA,SkellB) #using L1 loss on the two skeletons
+        SkellA= netH(self.real_A.data.cpu().numpy()) #using netH to get the heatmap for original A
+        SkellB= netH(np.asarray(fake_B.data))  #using netH to get the heatmap from the generated fakeB
+        loss_skeleton=self.criterionSkel(SkellB, SkellA) #using L1 loss on the two skeletons
         # combined loss
-        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B # +loss_skeleton #adding our loss the overall loss
+        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B  +loss_skeleton #adding our loss the overall loss
         loss_G.backward()
 
         self.fake_B = fake_B.data
