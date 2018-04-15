@@ -174,11 +174,19 @@ class CycleGANModel(BaseModel):
         rec_B = self.netG_A(fake_A)
         loss_cycle_B = self.criterionCycle(rec_B, self.real_B) * lambda_B
         # Skeleton Idt loss TODO:
-        SkellA= netH(self.real_A.data.cpu().numpy()) #using netH to get the heatmap for original A
-        SkellB= netH(np.asarray(fake_B.data))  #using netH to get the heatmap from the generated fakeB
+        #print("before Skel-----------------")
+        #print(self.real_A.data, type(self.real_A), type(self.real_A.data))
+        SkellA= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
+        #print("after Skel-----------------")
+
+        SkellB= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+        #print(SkellA, type(SkellA), SkellB, type(SkellB))
+        SkellA = SkellA.detach()
+        #print(SkellA.requires_grad)
+        #print("----------------------------- END")
         loss_skeleton=self.criterionSkel(SkellB, SkellA) #using L1 loss on the two skeletons
         # combined loss
-        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B  +loss_skeleton #adding our loss the overall loss
+        loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B + loss_skeleton #adding our loss the overall loss
         loss_G.backward()
 
         self.fake_B = fake_B.data
@@ -190,6 +198,7 @@ class CycleGANModel(BaseModel):
         self.loss_G_B = loss_G_B.data[0]
         self.loss_cycle_A = loss_cycle_A.data[0]
         self.loss_cycle_B = loss_cycle_B.data[0]
+        self.loss_skeleton = loss_skeleton.data[0]
 
     def optimize_parameters(self):
         # forward
@@ -209,7 +218,8 @@ class CycleGANModel(BaseModel):
 
     def get_current_errors(self):
         ret_errors = OrderedDict([('D_A', self.loss_D_A), ('G_A', self.loss_G_A), ('Cyc_A', self.loss_cycle_A),
-                                 ('D_B', self.loss_D_B), ('G_B', self.loss_G_B), ('Cyc_B',  self.loss_cycle_B)])
+                                 ('D_B', self.loss_D_B), ('G_B', self.loss_G_B), ('Cyc_B',  self.loss_cycle_B),
+                                  ('Skell_loss', self.loss_skeleton)])
         if self.opt.identity > 0.0:
             ret_errors['idt_A'] = self.loss_idt_A
             ret_errors['idt_B'] = self.loss_idt_B

@@ -150,26 +150,30 @@ param_, model_ = config_reader()
 def handle_one(oriImg):
     
     # for visualize
+    #print("---------------", oriImg, ["it's type:", type(oriImg)])
     canvas = np.copy(oriImg)
     imageToTest = Variable(T.transpose(T.transpose(T.unsqueeze(torch.from_numpy(oriImg).float(),0),2,3),1,2),volatile=True).cuda()
-    print(oriImg.shape)
+    #print(oriImg.shape) #TODO:open
     scale = model_['boxsize'] / float(oriImg.shape[0])
-    print(scale)
+    #print(scale) #TODO:open
+    #print("after scale----------------------------------------")#TODO:
     h = int(oriImg.shape[0]*scale)
     w = int(oriImg.shape[1]*scale)
     pad_h = 0 if (h%model_['stride']==0) else model_['stride'] - (h % model_['stride']) 
     pad_w = 0 if (w%model_['stride']==0) else model_['stride'] - (w % model_['stride'])
     new_h = h+pad_h
     new_w = w+pad_w
-
+    #print("before resize----------------------------------------")  # TODO:
     imageToTest = cv2.resize(oriImg, (0,0), fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    #print("after resize----------------------------------------")  # TODO:
     imageToTest_padded, pad = util.padRightDownCorner(imageToTest, model_['stride'], model_['padValue'])
+    #print("after pad----------------------------------------")  # TODO:
     imageToTest_padded = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,2,0,1))/256 - 0.5
-
-    feed = Variable(T.from_numpy(imageToTest_padded)).cuda()      
-
+    #print("after trans----------------------------------------")  # TODO:
+    feed = Variable(T.from_numpy(imageToTest_padded)).cuda()
+    #print("after cude----------------------------------------")  # TODO:
     output1,output2 = model(feed)
-
+    #print("before heatmap----------------------------------------")  # TODO:
     heatmap = nn.UpsamplingBilinear2d((oriImg.shape[0], oriImg.shape[1])).cuda()(output2)
 
    # paf = nn.UpsamplingBilinear2d((oriImg.shape[0], oriImg.shape[1])).cuda()(output1)
