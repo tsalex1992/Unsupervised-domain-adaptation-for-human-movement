@@ -178,10 +178,10 @@ class CycleGANModel(BaseModel):
         # Skeleton Idt loss TODO:
         #print("before Skel-----------------")
         #print(self.real_A.data, type(self.real_A), type(self.real_A.data))
-        SkellA= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
+        SkellA, self.skellA_canvas= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
         #print("after Skel-----------------")
 
-        SkellB= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+        SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
         #print(SkellA, type(SkellA), SkellB, type(SkellB))
         SkellA = SkellA.detach()
         #print(SkellA.requires_grad)
@@ -235,7 +235,8 @@ class CycleGANModel(BaseModel):
         fake_A = util.tensor2im(self.fake_A)
         rec_B = util.tensor2im(self.rec_B)
         ret_visuals = OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('rec_A', rec_A),
-                                   ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B), ('SkellA', rec_B)])
+                                   ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B),
+                                   ('SkellA', self.skellA_canvas), ('SkellB', self.skellB_canvas)])
         if self.opt.isTrain and self.opt.identity > 0.0:
             ret_visuals['idt_A'] = util.tensor2im(self.idt_A)
             ret_visuals['idt_B'] = util.tensor2im(self.idt_B)
