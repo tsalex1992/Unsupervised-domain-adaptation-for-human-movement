@@ -24,11 +24,14 @@ from scipy.ndimage.filters import gaussian_filter
 #parser.add_argument('--pth_file', required=True)
 #args = parser.parse_args()
 
+
 torch.set_num_threads(torch.get_num_threads())
-weight_name = './model/pose_model.pth'
+#print os.getcwd()
+weight_name = 'models/pytorch_Realtime/model/pose_model.pth'
 
 blocks = {}
-
+temp = sys.argv[1]
+#print temp
 # find connection in the specified sequence, center 29 is in the position 15
 limbSeq = [[2,3], [2,6], [3,4], [4,5], [6,7], [7,8], [2,9], [9,10], \
            [10,11], [2,12], [12,13], [13,14], [2,1], [1,15], [15,17], \
@@ -147,7 +150,7 @@ param_, model_ = config_reader()
 
 #torch.nn.functional.pad(img pad, mode='constant', value=model_['padValue'])
 tic = time.time()
-test_image = './sample_image/ski.jpg'
+test_image = sys.argv[1]
 #test_image = 'a.jpg'
 oriImg = cv2.imread(test_image) # B,G,R order
 imageToTest = Variable(T.transpose(T.transpose(T.unsqueeze(torch.from_numpy(oriImg).float(),0),2,3),1,2),volatile=True).cuda()
@@ -362,5 +365,5 @@ for i in range(17):
 
 toc =time.time()
 print 'time is %.5f'%(toc-tic)     
-cv2.imwrite('result.png',canvas)   
+cv2.imwrite("Skel_"+sys.argv[1],canvas)
 

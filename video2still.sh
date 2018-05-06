@@ -10,8 +10,8 @@ path_model="$path_dataset/$model_name"
 mkdir "$path_model"
 cd "$path_model"
 
-path_video1="$path_model/trainA"
-path_video2="$path_model/trainB"
+path_video1="$path_model/testA"
+path_video2="$path_model/testB"
 mkdir "$path_video1"
 mkdir "$path_video2"
 

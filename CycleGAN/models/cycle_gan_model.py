@@ -137,6 +137,8 @@ class CycleGANModel(BaseModel):
         lambda_idt = self.opt.identity
         lambda_A = self.opt.lambda_A
         lambda_B = self.opt.lambda_B
+        lambda_S = self.opt.lambda_S # was chosen to be 10 real value TBD
+
         # Identity loss
         if lambda_idt > 0:
             # G_A should be identity if real_B is fed.
@@ -184,7 +186,7 @@ class CycleGANModel(BaseModel):
         SkellA = SkellA.detach()
         #print(SkellA.requires_grad)
         #print("----------------------------- END")
-        loss_skeleton=self.criterionSkel(SkellB, SkellA) #using L1 loss on the two skeletons
+        loss_skeleton=self.criterionSkel(SkellB, SkellA) * lambda_S #using L1 loss on the two skeletons
         # combined loss
         loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B + loss_skeleton #adding our loss the overall loss
         loss_G.backward()
@@ -233,7 +235,7 @@ class CycleGANModel(BaseModel):
         fake_A = util.tensor2im(self.fake_A)
         rec_B = util.tensor2im(self.rec_B)
         ret_visuals = OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('rec_A', rec_A),
-                                   ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B)])
+                                   ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B), ('SkellA', rec_B)])
         if self.opt.isTrain and self.opt.identity > 0.0:
             ret_visuals['idt_A'] = util.tensor2im(self.idt_A)
             ret_visuals['idt_B'] = util.tensor2im(self.idt_B)

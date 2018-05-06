@@ -45,6 +45,11 @@ class Visualizer():
                 title = self.name
                 label_html = ''
                 label_html_row = ''
+                visuals['Skel_real_A'] = 'data'
+                visuals['Skel_real_B'] = 'data'
+                visuals['Skel_fake_A'] = 'data'
+                visuals['Skel_fake_B'] = 'data'
+
                 nrows = int(np.ceil(len(visuals.items()) / ncols))
                 images = []
                 idx = 0
@@ -89,6 +94,17 @@ class Visualizer():
                 links = []
 
                 for label, image_numpy in visuals.items():
+                    #print os.getcwd()
+                    # print label
+                    # if label == "fake_A" or label == "fake_B" or label == "real_A" or label == "real_B":
+                    #     print "Inside the label loop"
+                    #     os.system("python models/pytorch_Realtime/picture_demo.py  '{}/epoch%.3d_%s.png'".format(self.img_dir) % (n, label))
+                    #     img_path = 'epoch%.3d_%s.pngresult.png' % (n, label+"_Skel")
+                    #     ims.append(img_path)
+                    #     txts.append(label+"_Skel")
+                    #     links.append(img_path)
+                    #print os.getcwd() + "After os sys python command"
+                    #os.system("sleep 5")
                     img_path = 'epoch%.3d_%s.png' % (n, label)
                     ims.append(img_path)
                     txts.append(label)
@@ -134,6 +150,13 @@ class Visualizer():
         links = []
 
         for label, image_numpy in visuals.items():
+            # if label == "fake_A" or label == "fake_B" or label == "real_A" or label == "real_B":
+            #     image_name = '%s_%s.png'+"result.png" % (name, label)
+            #     save_path = os.path.join(image_dir, image_name)
+            #     util.save_image(image_numpy, save_path)
+            #     ims.append(image_name)
+            #     txts.append(label+"_Skel")
+            #     links.append(image_name)
             image_name = '%s_%s.png' % (name, label)
             save_path = os.path.join(image_dir, image_name)
             util.save_image(image_numpy, save_path)
