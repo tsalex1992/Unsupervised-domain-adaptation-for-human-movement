@@ -16,11 +16,12 @@ mkdir "$path_video1"
 mkdir "$path_video2"
 
 cd "$path_video1" #-r means fps 5 is 5 pics per sec
-ffmpeg -i "$root_path/videos/$video1" -r 20 -f image2 image-%4d.jpeg &> /dev/null
+ffmpeg -i "$root_path/videos/$video1" -ss 3 -t 140 -r 29 -f image2 image-%4d.jpeg &> /dev/null
 echo "video 1 is done!"
 
 
 cd "$path_video2"
-ffmpeg -i "$root_path/videos/$video2" -r 20 -f image2 image-%4d.jpeg &> /dev/null 
+ffmpeg -i "$root_path/videos/$video2" -ss 16 -t 50 -r 29 -f image2 image-%4d.jpeg &> /dev/null
 echo "video 2 is done!"
 exit 0
+# 10 - 20
