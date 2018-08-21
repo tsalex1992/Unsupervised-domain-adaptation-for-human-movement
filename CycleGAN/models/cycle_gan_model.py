@@ -178,15 +178,37 @@ class CycleGANModel(BaseModel):
         # Skeleton Idt loss TODO:
         #print("before Skel-----------------")
         #print(self.real_A.data, type(self.real_A), type(self.real_A.data))
-        SkellA, self.skellA_canvas= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
-        #print("after Skel-----------------")
+        if opt.input_nc == 9 : #TODO change to a better condition
+                self.list_real_A = torch.chunk(real_A.data,3)
+                self.list_real_B = torch.chunk(real_B.data,3)
+                self.list_fake_A = torch.chunk(fake_A.data,3)
+                self.list_fake_B = torch.chunk(fake_B.data,3)
+                if lambda_idt > 0:
+                    self.list_idt_A = torch.chunk(idt_A.data,3)
+                    self.list_idt_B = torch.chunk(idt_B.data,3)
+                self.list_rec_A = torch.chunk(rec_A.data,3)
+                self.list_rec_B = torch.chunk(rec_B.data,3)
+                for i in range(3):
+                    SkellA, self.skellA_canvas += netH(np.asarray(self.list_real_A[i].data.view(256,256,3))) #using netH to get the heatmap for original A
+                    #print("after Skel-----------------")
 
-        SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
-        #print(SkellA, type(SkellA), SkellB, type(SkellB))
-        SkellA = SkellA.detach()
-        #print(SkellA.requires_grad)
-        #print("----------------------------- END")
-        loss_skeleton=self.criterionSkel(SkellB, SkellA) * lambda_S #using L1 loss on the two skeletons
+                    SkellB, self.skellB_canvas+= netH(np.asarray(self.list_fake_B[i].data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+                    #print(SkellA, type(SkellA), SkellB, type(SkellB))
+                    #print(SkellA.requires_grad)
+                    #print("----------------------------- END")
+                SkellA = SkellA.detach()
+                loss_skeleton=self.criterionSkel(SkellB, SkellA) * lambda_S #using L1 loss on the two skeletons
+        else:
+
+                SkellA, self.skellA_canvas= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
+                #print("after Skel-----------------")
+
+                SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+                #print(SkellA, type(SkellA), SkellB, type(SkellB))
+                SkellA = SkellA.detach()
+                #print(SkellA.requires_grad)
+                #print("----------------------------- END")
+                loss_skeleton=self.criterionSkel(SkellB, SkellA) * lambda_S #using L1 loss on the two skeletons
         # combined loss
         loss_G = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B + loss_skeleton #adding our loss the overall loss
         loss_G.backward()
@@ -228,17 +250,33 @@ class CycleGANModel(BaseModel):
         return ret_errors
 
     def get_current_visuals(self):
-        real_A = util.tensor2im(self.input_A)
-        fake_B = util.tensor2im(self.fake_B)
-        rec_A = util.tensor2im(self.rec_A)
-        real_B = util.tensor2im(self.input_B)
-        fake_A = util.tensor2im(self.fake_A)
-        rec_B = util.tensor2im(self.rec_B)
+        if(self.opt.input_nc == 9) :
+
+            real_A = util.tensor2im(self.list_real_A[0].data)
+            fake_B = util.tensor2im(self.list_fake_B[0].data)
+            rec_A = util.tensor2im(self.list_rec_A[0].data)
+            real_B = util.tensor2im(self.list_real_B[0].data)
+            fake_A = util.tensor2im(self.list_fake_A[0].data)
+            rec_B = util.tensor2im(self.list_rec_B[0].data)
+
+        else:
+
+            real_A = util.tensor2im(self.input_A)
+            fake_B = util.tensor2im(self.fake_B)
+            rec_A = util.tensor2im(self.rec_A)
+            real_B = util.tensor2im(self.input_B)
+            fake_A = util.tensor2im(self.fake_A)
+            rec_B = util.tensor2im(self.rec_B)
         ret_visuals = OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('rec_A', rec_A),
                                    ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B)])
         if self.opt.isTrain and self.opt.identity > 0.0:
-            ret_visuals['idt_A'] = util.tensor2im(self.idt_A)
-            ret_visuals['idt_B'] = util.tensor2im(self.idt_B)
+            if(self.opt.input_nc == 9) :
+                ret_visuals['idt_A'] = util.tensor2im(self.list_idt_A[0].data)
+                ret_visuals['idt_B'] = util.tensor2im(self.list_idt_B[0].data)
+            else:
+
+                ret_visuals['idt_A'] = util.tensor2im(self.idt_A)
+                ret_visuals['idt_B'] = util.tensor2im(self.idt_B)
         return ret_visuals
 
     def save(self, label):

@@ -23,6 +23,13 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
         visualizer.reset()
         total_steps += opt.batchSize
         epoch_iter += opt.batchSize
+        if opt.input_nc == 9 and opt.output_nc == 9:
+            if i >= dataset.size() -3 :
+                break
+            data_A = torch.cat((dataset[i]['A'],dataset[i+1]['A'],dataset[i+2]['A']),0)
+            data_B = torch.cat((dataset[i]['B'],dataset[i+1]['B'],dataset[i+2]['B']),0)
+            data = {'A': data_A, 'B': data_B,
+                    'A_paths': data['A_paths'], 'B_paths': data['B_paths']}
         model.set_input(data)
         model.optimize_parameters()
 

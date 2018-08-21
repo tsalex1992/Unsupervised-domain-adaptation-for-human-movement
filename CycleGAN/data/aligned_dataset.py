@@ -12,7 +12,7 @@ class AlignedDataset(BaseDataset):
         self.opt = opt
         self.root = opt.dataroot
         self.dir_AB = os.path.join(opt.dataroot, opt.phase)
-
+        #alignement
         self.AB_paths = sorted(make_dataset(self.dir_AB))
 
         assert(opt.resize_or_crop == 'resize_and_crop')
@@ -20,7 +20,7 @@ class AlignedDataset(BaseDataset):
         transform_list = [transforms.ToTensor(),
                           transforms.Normalize((0.5, 0.5, 0.5),
                                                (0.5, 0.5, 0.5))]
-
+        # Transforming from PIL image to tensor + normalize
         self.transform = transforms.Compose(transform_list)
 
     def __getitem__(self, index):
@@ -60,7 +60,9 @@ class AlignedDataset(BaseDataset):
         if output_nc == 1:  # RGB to gray
             tmp = B[0, ...] * 0.299 + B[1, ...] * 0.587 + B[2, ...] * 0.114
             B = tmp.unsqueeze(0)
-    
+
+
+
         return {'A': A, 'B': B,
                 'A_paths': AB_path, 'B_paths': AB_path}
 
