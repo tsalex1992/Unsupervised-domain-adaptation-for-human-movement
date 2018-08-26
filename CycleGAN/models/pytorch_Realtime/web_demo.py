@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 import re
 import sys
@@ -152,6 +153,7 @@ def handle_one(oriImg):
     # for visualize
     #print("---------------", oriImg, ["it's type:", type(oriImg)])
     canvas = np.copy(oriImg)
+    cv2.imwrite('testing_skell_ori.jpg', canvas             )
     imageToTest = Variable(T.transpose(T.transpose(T.unsqueeze(torch.from_numpy(oriImg).float(),0),2,3),1,2),volatile=True).cuda()
     #print(oriImg.shape) #TODO:open
     scale = model_['boxsize'] / float(oriImg.shape[0])
@@ -250,7 +252,15 @@ def handle_one(oriImg):
                                       for I in range(len(startend))])
 
                     score_midpts = np.multiply(vec_x, vec[0]) + np.multiply(vec_y, vec[1])
-                    score_with_dist_prior = sum(score_midpts)/len(score_midpts) + min(0.5*oriImg.shape[0]/norm-1, 0)
+                    if len(score_midpts) != 0:
+                        if norm -1 < 0.001:
+                            score_with_dist_prior = sum(score_midpts) / len(score_midpts)
+                        else:
+                            score_with_dist_prior = sum(score_midpts)/len(score_midpts)
+                            score_with_dist_prior = score_with_dist_prior + min(0.5*oriImg.shape[0]/norm-1, 0)
+                    else:
+                        score_with_dist_prior = 0
+
                     criterion1 = len(np.nonzero(score_midpts > param_['thre2'])[0]) > 0.8 * len(score_midpts)
                     criterion2 = score_with_dist_prior > 0
                     if criterion1 and criterion2:
@@ -347,8 +357,13 @@ def handle_one(oriImg):
             polygon = cv2.ellipse2Poly((int(mY),int(mX)), (int(length/2), stickwidth), int(angle), 0, 360, 1)
             cv2.fillConvexPoly(cur_canvas, polygon, colors[i])
             canvas = cv2.addWeighted(canvas, 0.4, cur_canvas, 0.6, 0)
-
-    return heatmap, canvas
+    #print(type(canvas))
+    #print(type(heatmap))
+    # print('------------------------------debuggggggg')
+    # print(np.shape(canvas))
+    # print(np.shape(heatmap))
+    cv2.imwrite('testing_skellA.jpg', canvas[:,:,::-1])
+    return heatmap, canvas[:,:,::-1]
 
 if __name__ == "__main__":
     print 'warming up'

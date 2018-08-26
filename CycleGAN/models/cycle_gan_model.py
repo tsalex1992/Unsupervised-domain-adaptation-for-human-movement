@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 import os
+from PIL import Image
+import cv2
 from collections import OrderedDict
 from torch.autograd import Variable
 import itertools
@@ -178,10 +180,11 @@ class CycleGANModel(BaseModel):
         # Skeleton Idt loss TODO:
         #print("before Skel-----------------")
         #print(self.real_A.data, type(self.real_A), type(self.real_A.data))
-        SkellA, self.skellA_canvas= netH(np.asarray(self.real_A.data.view(256,256,3))) #using netH to get the heatmap for original A
+        SkellA, self.skellA_canvas= netH(util.tensor2im(self.real_A.data)[:, :, ::-1].copy()) #using netH to get the heatmap for original A
         #print("after Skel-----------------")
-
-        SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+        cv2.imwrite('zbab_final.jpg', util.tensor2im(self.real_A.data)[:, :, ::-1])
+        SkellB, self.skellB_canvas = netH(util.tensor2im(fake_B.data)[:, :, ::-1].copy())
+        #SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
         #print(SkellA, type(SkellA), SkellB, type(SkellB))
         SkellA = SkellA.detach()
         #print(SkellA.requires_grad)
@@ -229,13 +232,19 @@ class CycleGANModel(BaseModel):
 
     def get_current_visuals(self):
         real_A = util.tensor2im(self.input_A)
+        #TODO
+        print('saving')
+        print(real_A, type(real_A), np.shape(real_A))
+        Image.fromarray(real_A).save('new_img.jpg')
+        cv2.imwrite('testing_skell_new.jpg', real_A[:, :, ::-1])
         fake_B = util.tensor2im(self.fake_B)
         rec_A = util.tensor2im(self.rec_A)
         real_B = util.tensor2im(self.input_B)
         fake_A = util.tensor2im(self.fake_A)
         rec_B = util.tensor2im(self.rec_B)
-        ret_visuals = OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('rec_A', rec_A),
-                                   ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B)])
+        ret_visuals = OrderedDict([('real_A', real_A), ('SkellA', self.skellA_canvas),
+                                   ('fake_B', fake_B), ('SkellB', self.skellB_canvas),
+                                   ('rec_A', rec_A), ('real_B', real_B), ('fake_A', fake_A), ('rec_B', rec_B)])
         if self.opt.isTrain and self.opt.identity > 0.0:
             ret_visuals['idt_A'] = util.tensor2im(self.idt_A)
             ret_visuals['idt_B'] = util.tensor2im(self.idt_B)

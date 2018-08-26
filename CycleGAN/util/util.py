@@ -1,5 +1,6 @@
 from __future__ import print_function
 import torch
+import cv2
 import numpy as np
 from PIL import Image
 import inspect, re
