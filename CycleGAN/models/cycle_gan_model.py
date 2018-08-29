@@ -22,7 +22,8 @@ class CycleGANModel(BaseModel):
 
     def initialize(self, opt):
         BaseModel.initialize(self, opt)
-
+        self.skellA =0
+        self.skellB =0
         nb = opt.batchSize
         size = opt.fineSize
         self.input_A = self.Tensor(nb, opt.input_nc, size, size)
@@ -117,8 +118,9 @@ class CycleGANModel(BaseModel):
         # Fake
         pred_fake = netD(fake.detach())
         loss_D_fake = self.criterionGAN(pred_fake, False)
+        lambda_D = self.opt.lambda_D # was chosen to be 10 real value TBD
         # Combined loss
-        loss_D = (loss_D_real + loss_D_fake) * 0.5
+        loss_D = (loss_D_real + loss_D_fake) * 0.5 * lambda_D
         # backward
         loss_D.backward()
         return loss_D
@@ -178,21 +180,21 @@ class CycleGANModel(BaseModel):
         # Skeleton Idt loss TODO:
         #print("before Skel-----------------")
         #print(self.real_A.data, type(self.real_A), type(self.real_A.data))
-        if opt.input_nc == 9 : #TODO change to a better condition
-                self.list_real_A = torch.chunk(real_A.data,3)
-                self.list_real_B = torch.chunk(real_B.data,3)
-                self.list_fake_A = torch.chunk(fake_A.data,3)
-                self.list_fake_B = torch.chunk(fake_B.data,3)
+
+        if self.opt.input_nc == 9 : #TODO change to a better condition
+                self.list_real_A = torch.chunk(self.real_A.data,3,1)
+                self.list_real_B = torch.chunk(self.real_B.data,3,1)
+                self.list_fake_A = torch.chunk(fake_A.data,3,1)
+                self.list_fake_B = torch.chunk(fake_B.data,3,1)
                 if lambda_idt > 0:
-                    self.list_idt_A = torch.chunk(idt_A.data,3)
-                    self.list_idt_B = torch.chunk(idt_B.data,3)
-                self.list_rec_A = torch.chunk(rec_A.data,3)
-                self.list_rec_B = torch.chunk(rec_B.data,3)
-                for i in range(3):
-                    SkellA, self.skellA_canvas += netH(np.asarray(self.list_real_A[i].data.view(256,256,3))) #using netH to get the heatmap for original A
+                    self.list_idt_A = torch.chunk(idt_A.data,3,1)
+                    self.list_idt_B = torch.chunk(idt_B.data,3,1)
+                self.list_rec_A = torch.chunk(rec_A.data,3,1)
+                self.list_rec_B = torch.chunk(rec_B.data,3,1)
+                SkellA, self.skellA_canvas= netH(np.asarray(self.list_real_A[0].data.view(256,256,3)))#+ netH(np.asarray(self.list_real_A[1].data.view(256,256,3))) + netH(np.asarray(self.list_real_A[2].data.view(256,256,3)))  #using netH to get the heatmap for original A
                     #print("after Skel-----------------")
 
-                    SkellB, self.skellB_canvas+= netH(np.asarray(self.list_fake_B[i].data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
+                SkellB, self.skellB_canvas=netH(np.asarray(self.list_fake_B[0].data.view(256,256,3)))#+ netH(np.asarray(self.list_fake_B[1].data.view(256,256,3)))+ netH(np.asarray(self.list_fake_B[2].data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
                     #print(SkellA, type(SkellA), SkellB, type(SkellB))
                     #print(SkellA.requires_grad)
                     #print("----------------------------- END")

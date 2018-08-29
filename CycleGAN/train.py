@@ -3,6 +3,7 @@ from options.train_options import TrainOptions
 from data.data_loader import CreateDataLoader
 from models.models import create_model
 from util.visualizer import Visualizer
+import torch
 
 opt = TrainOptions().parse()
 data_loader = CreateDataLoader(opt)
@@ -24,10 +25,27 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
         total_steps += opt.batchSize
         epoch_iter += opt.batchSize
         if opt.input_nc == 9 and opt.output_nc == 9:
-            if i >= dataset.size() -3 :
+            if i >= dataset_size -3 :
                 break
-            data_A = torch.cat((dataset[i]['A'],dataset[i+1]['A'],dataset[i+2]['A']),0)
-            data_B = torch.cat((dataset[i]['B'],dataset[i+1]['B'],dataset[i+2]['B']),0)
+            if i == 0 :
+                data_A3 = data['A']
+                data_A2 = data['A']
+                data_B3 = data['B']
+                data_B2 = data['B']
+                data_A1 = data['A']
+                data_B1 = data['B']
+
+
+
+            data_A3 = data_A2
+            data_A2 = data_A1
+            data_A1 = data['A']
+            data_B3 = data_B2
+            data_B2 = data_B1
+            data_B1 = data['B']
+
+            data_A = torch.cat((data_A1,data_A2,data_A3),1)
+            data_B = torch.cat((data_B1,data_B2,data_B3),1)
             data = {'A': data_A, 'B': data_B,
                     'A_paths': data['A_paths'], 'B_paths': data['B_paths']}
         model.set_input(data)
