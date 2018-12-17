@@ -153,7 +153,7 @@ def handle_one(oriImg):
     # for visualize
     #print("---------------", oriImg, ["it's type:", type(oriImg)])
     canvas = np.copy(oriImg)
-    cv2.imwrite('testing_skell_ori.jpg', canvas             )
+    #cv2.imwrite('testing_skell_ori.jpg', canvas             )
     imageToTest = Variable(T.transpose(T.transpose(T.unsqueeze(torch.from_numpy(oriImg).float(),0),2,3),1,2),volatile=True).cuda()
     #print(oriImg.shape) #TODO:open
     scale = model_['boxsize'] / float(oriImg.shape[0])
@@ -241,8 +241,8 @@ def handle_one(oriImg):
                 for j in range(nB):
                     vec = np.subtract(candB[j][:2], candA[i][:2])
                     norm = math.sqrt(vec[0]*vec[0] + vec[1]*vec[1])
-                    vec = np.divide(vec, norm)
-
+                    if norm != 0:
+                        vec = np.divide(vec, norm)
                     startend = zip(np.linspace(candA[i][0], candB[j][0], num=mid_num), \
                                    np.linspace(candA[i][1], candB[j][1], num=mid_num))
 
@@ -307,7 +307,6 @@ def handle_one(oriImg):
                         subset[j][-2] += candidate[partBs[i].astype(int), 2] + connection_all[k][i][2]
                 elif found == 2: # if found 2 and disjoint, merge them
                     j1, j2 = subset_idx
-                    print "found = 2"
                     membership = ((subset[j1]>=0).astype(int) + (subset[j2]>=0).astype(int))[:-2]
                     if len(np.nonzero(membership == 2)[0]) == 0: #merge
                         subset[j1][:-2] += (subset[j2][:-2] + 1)
@@ -362,7 +361,7 @@ def handle_one(oriImg):
     # print('------------------------------debuggggggg')
     # print(np.shape(canvas))
     # print(np.shape(heatmap))
-    cv2.imwrite('testing_skellA.jpg', canvas[:,:,::-1])
+    #cv2.imwrite('testing_skellA.jpg', canvas[:,:,::-1])
     return heatmap, canvas[:,:,::-1]
 
 if __name__ == "__main__":

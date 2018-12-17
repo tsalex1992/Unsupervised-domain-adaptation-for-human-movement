@@ -183,7 +183,7 @@ class CycleGANModel(BaseModel):
         Skell_realA, self.skell_realA_canvas= netH(util.tensor2im(self.real_A.data)[:, :, ::-1].copy()) #using netH to get the heatmap for original A
         Skell_realB, self.skell_realB_canvas = netH(util.tensor2im(self.real_B.data)[:, :, ::-1].copy())
         #print("after Skel-----------------")
-        cv2.imwrite('zbab_final.jpg', util.tensor2im(self.real_A.data)[:, :, ::-1])
+        # cv2.imwrite('withskel_final.jpg', util.tensor2im(self.real_A.data)[:, :, ::-1])
         Skell_fakeB, self.skell_fakeB_canvas = netH(util.tensor2im(fake_B.data)[:, :, ::-1].copy())
         Skell_fakeA, self.skell_fakeA_canvas = netH(util.tensor2im(fake_A.data)[:, :, ::-1].copy())
         #SkellB, self.skellB_canvas= netH(np.asarray(fake_B.data.view(256,256,3)))  #using netH to get the heatmap from the generated fakeB
@@ -238,10 +238,10 @@ class CycleGANModel(BaseModel):
     def get_current_visuals(self):
         real_A = util.tensor2im(self.input_A)
         #TODO
-        print('saving')
-        print(real_A, type(real_A), np.shape(real_A))
-        Image.fromarray(real_A).save('new_img.jpg')
-        cv2.imwrite('testing_skell_new.jpg', real_A[:, :, ::-1])
+        # print('saving')
+        # print(real_A, type(real_A), np.shape(real_A))
+        # Image.fromarray(real_A).save('new_img.jpg')
+        # cv2.imwrite('testing_skell_new.jpg', real_A[:, :, ::-1])
         fake_B = util.tensor2im(self.fake_B)
         rec_A = util.tensor2im(self.rec_A)
         real_B = util.tensor2im(self.input_B)
